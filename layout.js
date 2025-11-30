@@ -2,7 +2,7 @@ import './globals.css'
 
 export const metadata = {
   title: 'LinkLens',
-  description: 'LinkLens - connect creators and collaborators',
+  description: 'Where creators and collaborators connect.',
 }
 
 export default function RootLayout({ children }) {
