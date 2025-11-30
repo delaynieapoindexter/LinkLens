@@ -1,0 +1,39 @@
+/**
+ * Google Apps Script to accept POST JSON with { name, email }
+ * and append to the first sheet named 'Responses'.
+ *
+ * Steps:
+ *  - In Google Sheets: Extensions -> Apps Script
+ *  - Paste this file, Save, then Deploy -> New deployment -> Web app
+ *  - Set 'Execute as' = Me, and 'Who has access' = Anyone
+ *  - Copy the Web app URL and paste into NEXT_PUBLIC_GOOGLE_SCRIPT_URL
+ */
+
+function doPost(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Responses');
+    if (!sheet) {
+      sheet = ss.insertSheet('Responses');
+      sheet.appendRow(['Timestamp','Name','Email']);
+    }
+    var contentType = e.postData.type;
+    var data;
+    if (contentType === 'application/json' || contentType === 'text/plain') {
+      data = JSON.parse(e.postData.contents);
+    } else {
+      // fallback for form-data
+      data = e.parameter;
+    }
+    var name = data.name || '';
+    var email = data.email || '';
+    sheet.appendRow([new Date(), name, email]);
+    return ContentService
+      .createTextOutput(JSON.stringify({result: 'success'}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({result: 'error', error: err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
